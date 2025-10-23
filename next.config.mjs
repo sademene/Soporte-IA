@@ -1,9 +1,17 @@
+// next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  reactStrictMode: false,
-  // No usar experimental.appDir: Next 14 App Router ya está activo por /app
-  // y esta flag produciría warnings.
+  reactStrictMode: true,
+  experimental: {
+    // nothing special here; remove deprecated flags
+  },
+  webpack: (config) => {
+    // Ensure 'bcrypt' resolves to 'bcryptjs' to avoid native builds in Docker
+    config.resolve.alias = config.resolve.alias || {};
+    config.resolve.alias['bcrypt'] = 'bcryptjs';
+    return config;
+  },
 };
 
 export default nextConfig;

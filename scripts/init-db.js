@@ -1,45 +1,33 @@
-// scripts/init-db.js  (ESM)
-import Database from 'better-sqlite3';
-import path from 'node:path';
+// scripts/init-db.js (ESM-safe)
 import fs from 'node:fs';
+import path from 'node:path';
+import Database from 'better-sqlite3';
 
-const dataDir = '/app/data';
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+const dataDir = process.env.DATA_DIR || '/app/data';
+fs.mkdirSync(dataDir, { recursive: true });
 
 const dbPath = path.join(dataDir, 'frontend.db');
 const db = new Database(dbPath);
 
-// Throttle
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS login_throttle (
-    username TEXT NOT NULL,
-    ip TEXT NOT NULL,
-    failed_count INTEGER NOT NULL DEFAULT 0,
-    last_attempt_at TEXT,
-    lock_until TEXT,
-    PRIMARY KEY(username, ip)
-  )
-`).run();
-
-// Settings
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS settings (
-    key TEXT PRIMARY KEY,
-    value TEXT
-  )
-`).run();
-
-// Users
-db.prepare(`
+// Minimal schema (idempotent)
+db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    role TEXT NOT NULL CHECK (role IN ('user','admin')),
-    valid_until TEXT,
-    blocked INTEGER NOT NULL DEFAULT 0
-  )
-`).run();
+    password TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user',
+    blocked INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS throttle (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    ip TEXT,
+    failed_count INTEGER NOT NULL DEFAULT 0,
+    until TEXT
+  );
+`);
 
 db.close();
-console.log('SQLite inicializado en', dbPath);
+console.log('[init-db] DB initialized at', dbPath);
