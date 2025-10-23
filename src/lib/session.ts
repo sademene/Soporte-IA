@@ -1,47 +1,42 @@
 // src/lib/session.ts
-import { getIronSession, type IronSession, type IronSessionOptions } from 'iron-session';
 import { cookies } from 'next/headers';
+import type { IronSessionOptions, IronSession } from 'iron-session';
+import { getIronSession } from 'iron-session';
 
-export type UserSession = {
+export type SessionUser = {
   username: string;
-  role: 'superadmin' | 'admin' | 'user' | string;
+  role: 'superadmin' | 'admin' | 'agent';
   userId: number;
 };
 
 export type SessionData = {
-  user?: UserSession;
+  user?: SessionUser;
 };
 
+export type Session = IronSession<SessionData>;
+
+const password = process.env.SESSION_PASSWORD;
+if (!password || password.length < 32) {
+  // In prod this MUST be set. We avoid throwing to not crash the build;
+  // at runtime Next.js will still need it to sign cookies.
+  console.warn('SESSION_PASSWORD is missing or too short; set it in your .env file (32+ chars).');
+}
+
 export const sessionOptions: IronSessionOptions = {
-  cookieName: process.env.SESSION_COOKIE_NAME || 'soporte-ia-session',
-  password:
-    process.env.SESSION_PASSWORD ||
-    // ❗️En producción DEBES establecer SESSION_PASSWORD (mín. 32 chars)
-    'dev-only-min-32-characters-password-please-change-me-123456',
+  password: password || 'CHANGE_ME_IN_PROD_32_CHARS_MINIMUM________________',
+  cookieName: 'soporte-ia-session',
   cookieOptions: {
-    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
     sameSite: 'lax',
-    // Ajusta dominio si lo necesitas: domain: process.env.COOKIE_DOMAIN
+    secure: process.env.NODE_ENV === 'production',
   },
 };
 
 /**
- * Devuelve la sesión usando cookies() en App Router.
- * Uso: const session = await getSession(); session.user = {...}; await session.save();
+ * Returns the iron-session instance bound to Next.js app-router cookies().
+ * You can mutate `session.user` and call `session.save()` / `session.destroy()`.
  */
-export async function getSession(): Promise<IronSession<SessionData>> {
+export async function getSession(): Promise<Session> {
   const session = await getIronSession<SessionData>(cookies(), sessionOptions);
-  return session;
-}
-
-/**
- * Helper opcional: asegura que exista sesión con user.
- * Lanza si no hay sesión válida (puedes adaptarlo a tu flujo).
- */
-export async function requireSession(): Promise<IronSession<SessionData>> {
-  const session = await getSession();
-  if (!session.user) {
-    throw new Error('Unauthorized: session not found');
-  }
   return session;
 }
