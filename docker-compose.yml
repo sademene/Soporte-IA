@@ -1,0 +1,31 @@
+services:
+  soporte-ia:
+    container_name: soporte-ia
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Opcionales para redes corporativas/proxy
+        HTTP_PROXY: ${HTTP_PROXY-}
+        HTTPS_PROXY: ${HTTPS_PROXY-}
+        NO_PROXY: ${NO_PROXY-}
+        NPM_REGISTRY: ${NPM_REGISTRY-https://registry.npmjs.org/}
+    image: soporte-ia:latest
+    ports:
+      - "1230:3000"
+    environment:
+      NODE_ENV: production
+      SESSION_SECRET: ${SESSION_SECRET}
+      SUPERADMIN_USER: ${SUPERADMIN_USER-admin}
+      SUPERADMIN_PASS: ${SUPERADMIN_PASS-admin}
+      API_BASE_URL: ${API_BASE_URL-http://localhost:8000}
+      DEFAULT_BRAND_HEX: ${DEFAULT_BRAND_HEX-#7c3aed}
+      DEFAULT_THEME: ${DEFAULT_THEME-dark}
+      USE_API_MOCK: ${USE_API_MOCK-true}
+      PORT: ${PORT-3000}
+      PUBLIC_URL: ${PUBLIC_URL-}
+    volumes:
+      - data:/app/data
+    restart: unless-stopped
+volumes:
+  data:

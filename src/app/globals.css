@@ -1,0 +1,53 @@
+:root{
+  --brand-default: var(--brand, #7c3aed);
+  --bg: #0f1115;
+  --bg-2: #141821;
+  --text: #e6e6eb;
+  --muted: #9aa0aa;
+  --ring: color-mix(in oklab, var(--brand-default) 70%, white);
+}
+:root[data-theme='light']{
+  --bg: #f7f7fb;
+  --bg-2: #fff;
+  --text: #0f1115;
+  --muted: #4b5563;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+}
+a{color: var(--brand-default); text-decoration: none;}
+.button{
+  display:inline-flex; align-items:center; gap:.5rem;
+  background: var(--brand-default);
+  color:white; border:0; border-radius:12px; padding:.6rem 1rem; cursor:pointer;
+  transition: transform .08s ease, filter .2s ease;
+}
+.button.secondary{ background: var(--bg-2); color: var(--text); border:1px solid #2b3240 }
+.button:active{ transform: translateY(1px) }
+input,select{
+  background: var(--bg-2); color: var(--text);
+  border:1px solid #2b3240; border-radius:10px; padding:.6rem .8rem; outline: none;
+}
+input::placeholder{ color: var(--muted) }
+.container{max-width:1120px; margin:0 auto; padding:2rem}
+.card{background:var(--bg-2); border:1px solid #2b3240; border-radius:16px; padding:1rem}
+.row{display:flex; gap:1rem; align-items:center}
+.sidebar{width:280px; border-right:1px solid #2b3240; padding:1rem; overflow:auto}
+.main{flex:1; padding:1rem}
+.layout{display:flex; min-height:100dvh}
+hr{border:0; height:1px; background:#2b3240; margin:1rem 0}
+.badge{display:inline-block; font-size:11px; padding:.25rem .5rem; border-radius:999px; background:#1f2533; color:#cbd5e1; border:1px solid #2b3240}
+.list{display:flex; flex-direction:column; gap:.5rem}
+.title{font-weight:600}
+.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;}
+pre{background:#0b0e14; color:#e6e6eb; border-radius:12px; padding:1rem; overflow:auto; border:1px solid #2b3240}
+.chat-bubble{border:1px solid #2b3240; background:#111622; padding:.75rem 1rem; border-radius:12px; margin:.5rem 0}
+.chat-bubble.assistant{background:#0e1320}
+.chat-footer{display:flex; gap:.5rem; align-items:center; padding:.75rem; border-top:1px solid #2b3240}
+.chat-input{flex:1}
+.sidebar .title{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
